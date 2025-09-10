@@ -74,6 +74,16 @@
             cursor: pointer;
             border-radius: 50%;
         }
+        .hero-section {
+            /* ВАЖНО ДЛЯ GITHUB PAGES: 
+              Чтобы это изображение было видно, создайте в вашем репозитории папку 'images',
+              поместите туда файл с картинкой под названием 'leprekon-hero.jpg' 
+              и загрузите все вместе на GitHub.
+            */
+            background-image: url('images/leprekon-hero.jpg');
+            background-size: cover;
+            background-position: center;
+        }
     </style>
 </head>
 <body>
@@ -99,23 +109,26 @@
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         
-        <section id="summary" class="text-center mb-16 md:mb-24">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Проєкт "Сезонний Глінтвейн"</h2>
-            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
-                Аналіз доцільності введення нового сезонного напою — глінтвейну — в асортимент мережі магазинів розливного пива "Лепрекон" на ринку України. Цей звіт представляє ключові метрики, фінансові прогнози та стратегічний аналіз для прийняття зваженого рішення.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <div class="stat-card">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Прогноз. прибуток (за сезон)</p>
-                    <p id="metric-profit" class="text-3xl font-bold text-[#C75D3A]">120 000 грн</p>
-                </div>
-                <div class="stat-card">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Точка беззбитковості</p>
-                    <p id="metric-breakeven" class="text-3xl font-bold text-[#C75D3A]">10 днів</p>
-                </div>
-                <div class="stat-card">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Маржинальність</p>
-                    <p id="metric-margin" class="text-3xl font-bold text-[#C75D3A]">~63%</p>
+        <section id="summary" class="hero-section relative text-center mb-16 md:mb-24 py-16 md:py-24 rounded-xl overflow-hidden">
+            <div class="absolute inset-0 bg-black/60"></div>
+            <div class="relative z-10 px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Проєкт "Сезонний Глінтвейн"</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-200 mb-8" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                    Аналіз доцільності введення нового сезонного напою — глінтвейну — в асортимент мережі магазинів розливного пива "Лепрекон" на ринку України. Цей звіт представляє ключові метрики, фінансові прогнози та стратегічний аналіз для прийняття зваженого рішення.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <div class="stat-card bg-white/90 backdrop-blur-sm">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Загальний прибуток (прогноз)</p>
+                        <p id="metric-profit" class="text-3xl font-bold text-[#C75D3A]">120 000 грн</p>
+                    </div>
+                    <div class="stat-card bg-white/90 backdrop-blur-sm">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Беззбитковість (на 1 ТТ)</p>
+                        <p id="metric-breakeven" class="text-3xl font-bold text-[#C75D3A]">10 днів</p>
+                    </div>
+                    <div class="stat-card bg-white/90 backdrop-blur-sm">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Маржинальність</p>
+                        <p id="metric-margin" class="text-3xl font-bold text-[#C75D3A]">~63%</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -207,15 +220,15 @@
 
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-800">Фінансовий калькулятор</h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Ці стартові інвестиції враховані у калькуляторі нижче для розрахунку точки беззбитковості. Використовуйте повзунки для моделювання різних сценаріїв.</p>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Стартові інвестиції (10 000 грн/ТТ) враховані у розрахунку точки беззбитковості. Використовуйте повзунки для моделювання різних сценаріїв для всієї мережі.</p>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
                 <div>
-                    <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                         <div>
                             <label for="cost-slider" class="flex justify-between font-medium text-gray-700">
-                                <span>Собівартість порції (300 мл)</span>
+                                <span>Собівартість порції</span>
                                 <span id="cost-value" class="font-bold text-[#C75D3A]">30 грн</span>
                             </label>
                             <input id="cost-slider" type="range" min="20" max="50" value="30" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
@@ -229,18 +242,25 @@
                         </div>
                         <div>
                             <label for="sales-slider" class="flex justify-between font-medium text-gray-700">
-                                <span>Продажів на день (1 точка)</span>
+                                <span>Продажів / день / ТТ</span>
                                 <span id="sales-value" class="font-bold text-[#C75D3A]">20</span>
                             </label>
                             <input id="sales-slider" type="range" min="5" max="50" value="20" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
                         </div>
-                         <div>
-                            <label for="season-slider" class="flex justify-between font-medium text-gray-700">
-                                <span>Тривалість сезону</span>
-                                <span id="season-value" class="font-bold text-[#C75D3A]">120 днів</span>
+                        <div>
+                            <label for="stores-slider" class="flex justify-between font-medium text-gray-700">
+                                <span>Кількість точок</span>
+                                <span id="stores-value" class="font-bold text-[#C75D3A]">1</span>
                             </label>
-                            <input id="season-slider" type="range" min="60" max="150" value="120" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
+                            <input id="stores-slider" type="range" min="1" max="50" value="1" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
                         </div>
+                    </div>
+                     <div class="mt-6">
+                        <label for="season-slider" class="flex justify-between font-medium text-gray-700">
+                            <span>Тривалість сезону</span>
+                            <span id="season-value" class="font-bold text-[#C75D3A]">120 днів</span>
+                        </label>
+                        <input id="season-slider" type="range" min="60" max="150" value="120" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
                     </div>
                     <div class="mt-8 grid grid-cols-2 gap-4 text-center">
                          <div class="bg-gray-50 p-4 rounded-lg">
@@ -248,12 +268,10 @@
                             <p id="profit-per-cup" class="text-2xl font-bold text-gray-800">50 грн</p>
                         </div>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Прибуток за сезон*</p>
+                            <p class="text-sm text-gray-500">Загальний прибуток</p>
                             <p id="total-profit" class="text-2xl font-bold text-gray-800">120 000 грн</p>
                         </div>
                     </div>
-                     <p class="text-xs text-gray-500 mt-2 text-center">* Розрахунок на 1 точку.</p>
-
                 </div>
                 <div>
                     <div class="chart-container">
@@ -321,7 +339,7 @@
     
     <footer class="bg-gray-100 border-t border-gray-200 mt-12">
         <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
-            <p>&copy; 2025 Аналітичний відділ "Лепрекон". Усі розрахунки є прогнозними.</p>
+            <p>&copy; <span id="footer-year"></span> Аналітичний відділ "Лепрекон". Усі розрахунки є прогнозними.</p>
         </div>
     </footer>
 
@@ -331,11 +349,13 @@
             const priceSlider = document.getElementById('price-slider');
             const salesSlider = document.getElementById('sales-slider');
             const seasonSlider = document.getElementById('season-slider');
+            const storesSlider = document.getElementById('stores-slider');
 
             const costValue = document.getElementById('cost-value');
             const priceValue = document.getElementById('price-value');
             const salesValue = document.getElementById('sales-value');
             const seasonValue = document.getElementById('season-value');
+            const storesValue = document.getElementById('stores-value');
 
             const profitPerCup = document.getElementById('profit-per-cup');
             const totalProfit = document.getElementById('total-profit');
@@ -343,8 +363,10 @@
             const metricProfit = document.getElementById('metric-profit');
             const metricBreakeven = document.getElementById('metric-breakeven');
             const metricMargin = document.getElementById('metric-margin');
+            
+            document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-            const initialInvestment = 10000;
+            const initialInvestment = 10000; // Per store
 
             const formatCurrency = (value) => new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', minimumFractionDigits: 0 }).format(value);
 
@@ -407,23 +429,27 @@
                 const price = parseInt(priceSlider.value);
                 const sales = parseInt(salesSlider.value);
                 const seasonDays = parseInt(seasonSlider.value);
+                const stores = parseInt(storesSlider.value);
 
                 costValue.textContent = `${cost} грн`;
                 priceValue.textContent = `${price} грн`;
                 salesValue.textContent = `${sales}`;
                 seasonValue.textContent = `${seasonDays} днів`;
+                storesValue.textContent = `${stores}`;
 
-
+                // Ensure price is not lower than cost
                 if (price < cost) {
                     priceSlider.value = cost;
-                    updateFinancials();
+                    // Recalculate based on the adjusted value
+                    updateFinancials(); 
                     return;
                 }
 
                 const profit_per_cup = price - cost;
                 const dailyProfit = profit_per_cup * sales;
-                const total_profit = dailyProfit * seasonDays;
+                const total_profit = dailyProfit * seasonDays * stores;
                 const margin = (price > 0) ? (profit_per_cup / price) * 100 : 0;
+                // Breakeven is calculated per store as it's a measure of single-store efficiency
                 const breakevenDays = dailyProfit > 0 ? Math.ceil(initialInvestment / dailyProfit) : '∞';
 
 
@@ -439,12 +465,14 @@
                 profitChart.update();
             }
             
-            [costSlider, priceSlider, salesSlider, seasonSlider].forEach(slider => {
+            [costSlider, priceSlider, salesSlider, seasonSlider, storesSlider].forEach(slider => {
                 slider.addEventListener('input', updateFinancials);
             });
 
+            // Initial calculation on load
             updateFinancials();
 
+            // Smooth scrolling for navigation links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -457,4 +485,5 @@
     </script>
 </body>
 </html>
+
 
