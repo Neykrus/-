@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналіз проєкту: Глінтвейн в мережі "Лепрекон"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Autumn Spice -->
+    <!-- Application Structure Plan: The application is designed as a single-page, scrollable dashboard, moving from a high-level summary to detailed interactive analysis. This top-down structure allows users (e.g., decision-makers) to quickly grasp the project's potential and then dive deeper into the specifics. The key sections are: 1) Executive Summary with key metrics for a quick overview. 2) Market Opportunity to provide context. 3) An Interactive Financial Calculator, which is the core of the application, allowing users to model scenarios and understand financial drivers directly. This is chosen over static tables to promote engagement and deeper understanding. 4) A SWOT analysis presented in a clear grid for easy comparison. 5) A final, clear recommendation. This flow guides the user logically through the decision-making process, from 'what' to 'why' to 'how much' and finally 'so what'. -->
+    <!-- Visualization & Content Choices: 
+        - Key Metrics (Profit, ROI): Goal: Inform. Method: Large-font "stat cards" using HTML/Tailwind. Interaction: None. Justification: Provides immediate, high-impact information.
+        - Initial Investment Breakdown: Goal: Inform. Method: A two-column layout with styled lists of equipment and ingredients. Interaction: None. Justification: Provides transparency for the initial investment figure used in the calculator.
+        - Financial Model: Goal: Explore & Compare. Method: HTML sliders for inputs, dynamic text for outputs, and a reactive Bar Chart from Chart.js (Canvas). Interaction: User adjusts sliders for cost, price, sales volume, and season length, which instantly updates the calculated profit/breakeven point and redraws the bar chart showing cost vs. profit. Justification: This transforms a static financial projection into an interactive tool, making the relationship between variables tangible and easy to understand.
+        - SWOT Analysis: Goal: Organize qualitative data. Method: A four-column grid of styled cards using HTML/Tailwind. Interaction: Subtle hover effects. Justification: This visual separation makes the distinct analytical categories clear and digestible.
+        - Navigation: Goal: Guide user flow. Method: A sticky header with smooth-scroll links. Interaction: Clicking navigates the user. Justification: Improves usability on a long-scroll page. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .stat-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .swot-card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid #EAEAEA;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #C75D3A;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #C75D3A;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-200">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#C75D3A]">🍀 Лепрекон | Аналіз проєкту</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#summary" class="text-gray-600 hover:text-[#C75D3A] px-3 py-2 rounded-md text-sm font-medium">Огляд</a>
+                        <a href="#market" class="text-gray-600 hover:text-[#C75D3A] px-3 py-2 rounded-md text-sm font-medium">Ринок</a>
+                        <a href="#finance" class="text-gray-600 hover:text-[#C75D3A] px-3 py-2 rounded-md text-sm font-medium">Фінанси</a>
+                        <a href="#swot" class="text-gray-600 hover:text-[#C75D3A] px-3 py-2 rounded-md text-sm font-medium">SWOT</a>
+                        <a href="#conclusion" class="text-gray-600 hover:text-[#C75D3A] px-3 py-2 rounded-md text-sm font-medium">Висновок</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="summary" class="text-center mb-16 md:mb-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Проєкт "Сезонний Глінтвейн"</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
+                Аналіз доцільності введення нового сезонного напою — глінтвейну — в асортимент мережі магазинів розливного пива "Лепрекон" на ринку України. Цей звіт представляє ключові метрики, фінансові прогнози та стратегічний аналіз для прийняття зваженого рішення.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Прогноз. прибуток (за сезон)</p>
+                    <p id="metric-profit" class="text-3xl font-bold text-[#C75D3A]">120 000 грн</p>
+                </div>
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Точка беззбитковості</p>
+                    <p id="metric-breakeven" class="text-3xl font-bold text-[#C75D3A]">10 днів</p>
+                </div>
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Маржинальність</p>
+                    <p id="metric-margin" class="text-3xl font-bold text-[#C75D3A]">~63%</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Ринкова можливість</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">У холодну пору року попит на пиво природно знижується. Введення гарячого, ароматного напою, такого як глінтвейн, може не тільки компенсувати сезонне падіння продажів, але й залучити нову аудиторію, а також збільшити середній чек існуючих клієнтів.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Цільова аудиторія</h3>
+                    <p class="text-gray-600 mb-6">Продукт орієнтований як на поточну аудиторію магазинів, так і на залучення нових сегментів:</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3 text-[#E8A87C]">🍺</span>
+                            <div>
+                                <h4 class="font-semibold">Лояльні клієнти</h4>
+                                <p class="text-gray-500">Пропозиція нового цікавого продукту для тих, хто вже довіряє якості "Лепрекона".</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3 text-[#E8A87C]">👫</span>
+                            <div>
+                                <h4 class="font-semibold">Пари та компанії</h4>
+                                <p class="text-gray-500">Глінтвейн асоціюється із затишком та прогулянками, що може залучити тих, хто шукає напій "з собою" для створення атмосфери.</p>
+                            </div>
+                        </li>
+                         <li class="flex items-start">
+                            <span class="text-xl mr-3 text-[#E8A87C]">🛍️</span>
+                            <div>
+                                <h4 class="font-semibold">Спонтанні покупці</h4>
+                                <p class="text-gray-500">Аромат глінтвейну, що доноситься з магазину, стане потужним інструментом імпульсивних продажів.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                     <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-4">Конкурентна перевага</h3>
+                        <p class="text-gray-600">На відміну від кав'ярень, де глінтвейн часто буває дорогим, і різдвяних ярмарків, які працюють обмежений час, "Лепрекон" може запропонувати:</p>
+                        <ul class="mt-4 list-disc list-inside text-gray-600 space-y-2">
+                            <li><strong>Доступну ціну</strong> за рахунок великих обсягів закупівлі вина.</li>
+                            <li><strong>Зручне розташування</strong> "біля дому" для покупців.</li>
+                            <li><strong>Стабільну якість</strong> та перевірений рецепт.</li>
+                            <li><strong>Продаж "на винос"</strong>, що є звичним форматом для мережі.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="finance" class="mb-16 md:mb-24 bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-lg">
+            
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold text-gray-800 text-center mb-8">Стартові інвестиції та собівартість (на 1 ТТ)</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-700 mb-4">Необхідне обладнання</h4>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex justify-between items-center border-b pb-2"><span>Термопот для глінтвейну (10л)</span> <span class="font-medium text-gray-800">~6 000 грн</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Індукційна плита (альтернатива)</span> <span class="font-medium text-gray-800">(~2 000 грн)</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Дрібний інвентар (ополоник, ніж, дошка)</span> <span class="font-medium text-gray-800">~800 грн</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Перша закупка розхідників (стакани, кришки)</span> <span class="font-medium text-gray-800">~1 200 грн</span></li>
+                             <li class="flex justify-between items-center border-b pb-2"><span>Перша закупка інгредієнтів</span> <span class="font-medium text-gray-800">~2 000 грн</span></li>
+                        </ul>
+                        <div class="mt-6 bg-gray-100 p-4 rounded-lg text-center">
+                            <p class="text-lg font-semibold text-gray-800">Загальні стартові витрати:</p>
+                            <p class="text-2xl font-bold text-[#C75D3A]">~10 000 грн</p>
+                        </div>
+                    </div>
+                     <div>
+                        <h4 class="text-xl font-semibold text-gray-700 mb-4">Розрахунок собівартості 1 порції (300 мл)</h4>
+                         <ul class="space-y-3 text-gray-600">
+                            <li class="flex justify-between items-center border-b pb-2"><span>Вино червоне напівсухе (250 мл)</span> <span class="font-medium text-gray-800">~18 грн</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Спеції (пакет на 10л)</span> <span class="font-medium text-gray-800">~5 грн</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Апельсин, лимон, мед/цукор</span> <span class="font-medium text-gray-800">~4 грн</span></li>
+                            <li class="flex justify-between items-center border-b pb-2"><span>Стаканчик, кришка, серветка</span> <span class="font-medium text-gray-800">~3 грн</span></li>
+                        </ul>
+                        <div class="mt-6 bg-gray-100 p-4 rounded-lg text-center">
+                            <p class="text-lg font-semibold text-gray-800">Разом собівартість порції:</p>
+                            <p class="text-2xl font-bold text-[#C75D3A]">~30 грн</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-12 border-gray-200">
+
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Фінансовий калькулятор</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Ці стартові інвестиції враховані у калькуляторі нижче для розрахунку точки беззбитковості. Використовуйте повзунки для моделювання різних сценаріїв.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="cost-slider" class="flex justify-between font-medium text-gray-700">
+                                <span>Собівартість порції (300 мл)</span>
+                                <span id="cost-value" class="font-bold text-[#C75D3A]">30 грн</span>
+                            </label>
+                            <input id="cost-slider" type="range" min="20" max="50" value="30" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
+                        </div>
+                        <div>
+                            <label for="price-slider" class="flex justify-between font-medium text-gray-700">
+                                <span>Ціна продажу</span>
+                                <span id="price-value" class="font-bold text-[#C75D3A]">80 грн</span>
+                            </label>
+                            <input id="price-slider" type="range" min="50" max="150" value="80" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
+                        </div>
+                        <div>
+                            <label for="sales-slider" class="flex justify-between font-medium text-gray-700">
+                                <span>Продажів на день (1 точка)</span>
+                                <span id="sales-value" class="font-bold text-[#C75D3A]">20</span>
+                            </label>
+                            <input id="sales-slider" type="range" min="5" max="50" value="20" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
+                        </div>
+                         <div>
+                            <label for="season-slider" class="flex justify-between font-medium text-gray-700">
+                                <span>Тривалість сезону</span>
+                                <span id="season-value" class="font-bold text-[#C75D3A]">120 днів</span>
+                            </label>
+                            <input id="season-slider" type="range" min="60" max="150" value="120" class="w-full h-2 bg-[#E8A87C] rounded-lg appearance-none cursor-pointer range-slider">
+                        </div>
+                    </div>
+                    <div class="mt-8 grid grid-cols-2 gap-4 text-center">
+                         <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Прибуток з 1 порції</p>
+                            <p id="profit-per-cup" class="text-2xl font-bold text-gray-800">50 грн</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Прибуток за сезон*</p>
+                            <p id="total-profit" class="text-2xl font-bold text-gray-800">120 000 грн</p>
+                        </div>
+                    </div>
+                     <p class="text-xs text-gray-500 mt-2 text-center">* Розрахунок на 1 точку.</p>
+
+                </div>
+                <div>
+                    <div class="chart-container">
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                     <p class="text-center text-gray-600 mt-4 font-medium">Структура ціни продажу</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="swot" class="mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">SWOT-аналіз</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Оцінка внутрішніх та зовнішніх факторів, які можуть вплинути на успіх проєкту.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="swot-card border-t-4 border-green-400">
+                    <h3 class="text-xl font-bold text-green-600 mb-3">Сильні сторони (S)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Готова база лояльних клієнтів.</li>
+                        <li>Розвинена мережа точок продажу.</li>
+                        <li>Низькі стартові інвестиції.</li>
+                        <li>Досвід у продажу напоїв на винос.</li>
+                    </ul>
+                </div>
+                <div class="swot-card border-t-4 border-red-400">
+                    <h3 class="text-xl font-bold text-red-600 mb-3">Слабкі сторони (W)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Відсутність досвіду роботи з гарячими напоями.</li>
+                        <li>Асоціація бренду виключно з пивом.</li>
+                        <li>Потреба у навчанні персоналу.</li>
+                    </ul>
+                </div>
+                <div class="swot-card border-t-4 border-blue-400">
+                    <h3 class="text-xl font-bold text-blue-600 mb-3">Можливості (O)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Залучення нової аудиторії.</li>
+                        <li>Збільшення середнього чека взимку.</li>
+                        <li>Підвищення лояльності за рахунок розширення асортименту.</li>
+                        <li>Створення "атмосферного" продукту.</li>
+                    </ul>
+                </div>
+                <div class="swot-card border-t-4 border-yellow-400">
+                    <h3 class="text-xl font-bold text-yellow-600 mb-3">Загрози (T)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Пряма конкуренція з кав'ярнями.</li>
+                        <li>Можливі коливання цін на сировину (вино).</li>
+                        <li>Ризик низького попиту у випадку теплої зими.</li>
+                        <li>Складнощі зі зберіганням та списанням.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="text-center bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Висновок та Рекомендація</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-6">
+                Проєкт із введення сезонного глінтвейну в мережі "Лепрекон" демонструє високий потенціал. При відносно низьких початкових витратах (~10 000 грн на точку) і високій маржинальності, він здатний не тільки принести додатковий прибуток у низький сезон, але й зміцнити бренд, залучаючи нову аудиторію. Ризики проєкту є керованими.
+            </p>
+            <div class="inline-block bg-green-100 text-green-800 text-2xl font-bold px-8 py-4 rounded-lg">
+                РЕКОМЕНДАЦІЯ: ЗАПУСК ПРОЄКТУ
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-gray-100 border-t border-gray-200 mt-12">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+            <p>&copy; 2025 Аналітичний відділ "Лепрекон". Усі розрахунки є прогнозними.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const costSlider = document.getElementById('cost-slider');
+            const priceSlider = document.getElementById('price-slider');
+            const salesSlider = document.getElementById('sales-slider');
+            const seasonSlider = document.getElementById('season-slider');
+
+            const costValue = document.getElementById('cost-value');
+            const priceValue = document.getElementById('price-value');
+            const salesValue = document.getElementById('sales-value');
+            const seasonValue = document.getElementById('season-value');
+
+            const profitPerCup = document.getElementById('profit-per-cup');
+            const totalProfit = document.getElementById('total-profit');
+            
+            const metricProfit = document.getElementById('metric-profit');
+            const metricBreakeven = document.getElementById('metric-breakeven');
+            const metricMargin = document.getElementById('metric-margin');
+
+            const initialInvestment = 10000;
+
+            const formatCurrency = (value) => new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', minimumFractionDigits: 0 }).format(value);
+
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            const profitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ціна продажу'],
+                    datasets: [{
+                        label: 'Собівартість',
+                        data: [30],
+                        backgroundColor: '#E8A87C',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }, {
+                        label: 'Прибуток',
+                        data: [50],
+                        backgroundColor: '#C75D3A',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                           display: true,
+                           position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} грн`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Гривні (грн)'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            function updateFinancials() {
+                const cost = parseInt(costSlider.value);
+                const price = parseInt(priceSlider.value);
+                const sales = parseInt(salesSlider.value);
+                const seasonDays = parseInt(seasonSlider.value);
+
+                costValue.textContent = `${cost} грн`;
+                priceValue.textContent = `${price} грн`;
+                salesValue.textContent = `${sales}`;
+                seasonValue.textContent = `${seasonDays} днів`;
+
+
+                if (price < cost) {
+                    priceSlider.value = cost;
+                    updateFinancials();
+                    return;
+                }
+
+                const profit_per_cup = price - cost;
+                const dailyProfit = profit_per_cup * sales;
+                const total_profit = dailyProfit * seasonDays;
+                const margin = (price > 0) ? (profit_per_cup / price) * 100 : 0;
+                const breakevenDays = dailyProfit > 0 ? Math.ceil(initialInvestment / dailyProfit) : '∞';
+
+
+                profitPerCup.textContent = `${profit_per_cup} грн`;
+                totalProfit.textContent = formatCurrency(total_profit);
+                
+                metricProfit.textContent = formatCurrency(total_profit);
+                metricBreakeven.textContent = `${breakevenDays} днів`;
+                metricMargin.textContent = `~${margin.toFixed(0)}%`;
+                
+                profitChart.data.datasets[0].data[0] = cost;
+                profitChart.data.datasets[1].data[0] = profit_per_cup;
+                profitChart.update();
+            }
+            
+            [costSlider, priceSlider, salesSlider, seasonSlider].forEach(slider => {
+                slider.addEventListener('input', updateFinancials);
+            });
+
+            updateFinancials();
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
